@@ -30,7 +30,7 @@ router.post("/signup", async (req, res) => {
         // }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        
+
         const tenant = await prisma.tenant.create({
             data: {
                 tenantName
@@ -57,6 +57,42 @@ router.post("/signup", async (req, res) => {
         return res.status(500).json({ message: "Error creating user", error });
     }
 });
+
+router.post("/login", async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    try {
+        const user = await prisma.user.findUnique({ where: { email } });
+
+        if (!user) {
+            return res.status(401).json({ message: "Invalid email or password" });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: "Invalid email or password" });
+        }
+
+        const token = jwt.sign(
+            {
+                userId: user.id,
+                tenantId: user.tenantId,
+            },
+            process.env.JWT_SECRET || "dev-secret",
+            { expiresIn: "7d" }
+        );
+
+        return res.status(200).json({ message: "Login successful" ,token });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Error logging in", error });
+    }
+});
+
 
 
 export default router;
