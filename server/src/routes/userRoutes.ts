@@ -2,6 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { prisma } from "../prisma/client";
+import authMiddleware from "../middleware/middleware";
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || "default";
@@ -93,6 +94,13 @@ router.post("/login", async (req, res) => {
     }
 });
 
+router.post("/me", authMiddleware, async (req, res) => {
+    const me = await prisma.user.findUnique({
+        where: {
+            id: req.userId,
+        },
+    })
+})
 
 
 export default router;

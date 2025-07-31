@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import UserRoutes from "./routes/userRoutes"
+import { prisma } from './prisma/client';
 dotenv.config();
 
 const app = express();
@@ -9,10 +10,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (_req, res) => {
-    res.send(`BillForge main route running on ${PORT}`);
+app.get('/', async (req, res) => {
+    const users = await prisma.user.findMany({
+        include: {
+            tenant: true,
+        }
+
+    });
+res.json(users);
 });
-app.use("/api/v1/",UserRoutes)
+
+app.use("/api/v1/", UserRoutes)
 
 
 const PORT = process.env.PORT || 3001;
