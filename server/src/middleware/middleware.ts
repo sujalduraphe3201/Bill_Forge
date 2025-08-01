@@ -10,9 +10,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
         return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const token = authHeader.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : authHeader; // fallback to raw token
+    const token = authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : authHeader;
 
     try {
         const { userId, tenantId } = jwt.verify(token, JWT_SECRET) as { userId: string; tenantId: string };

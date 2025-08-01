@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import UserRoutes from "./routes/userRoutes"
 import { prisma } from './prisma/client';
+import dashRouter from './routes/dashboard';
 dotenv.config();
 
 const app = express();
@@ -11,16 +12,17 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', async (req, res) => {
-    const users = await prisma.user.findMany({
-        include: {
-            tenant: true,
-        }
+    // const users = await prisma.user.findMany({
+    //     include: {
+    //         tenant: true,
+    //     }
 
-    });
-res.json(users);
+    // });
+    // res.json(users);
 });
 
 app.use("/api/v1/", UserRoutes)
+app.use("/api/v1/", dashRouter)
 
 
 const PORT = process.env.PORT || 3001;
