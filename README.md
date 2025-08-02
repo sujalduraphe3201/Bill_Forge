@@ -1,4 +1,4 @@
-# 🚀 BillForge — Multi-Tenant SaaS Billing Dashboard
+#  BillForge — Multi-Tenant SaaS Billing Dashboard
 
 BillForge is a full-stack SaaS billing dashboard that supports **multi-tenant architecture**, secure **JWT-based authentication**, and dynamic user/company data rendering. It is designed to manage billing, subscriptions, and usage analytics for multiple clients under a single platform.
 
