@@ -8,10 +8,12 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [response, setResponse] = useState("");
     const navigate = useNavigate();
+
+
     const handleLogin = async () => {
         try {
             const res = await axios.post("http://localhost:3000/api/v1/login", { email, password });
-            setResponse("Login successful ✅");
+            setResponse("Login successful ");
             localStorage.setItem("token", res.data.token);
             navigate("/dashboard");
         } catch (error) {

@@ -3,10 +3,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { prisma } from "../prisma/client";
 import authMiddleware from "../middleware/middleware";
-
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || "default";
 
+const getJwtSecret = () => process.env.JWT_SECRET || "dev-secret";
 router.post("/signup", async (req, res) => {
 
     const { username, email, password, tenantName } = req.body;
@@ -23,14 +22,7 @@ router.post("/signup", async (req, res) => {
             return res.status(400).json({ message: "User already exists" });
         }
 
-        // const existingTenant = await prisma.tenant.findUnique({
-        //     where: { id: tenantId },
-        // });
-        // if (existingTenant) {
-        //     return res.status(404).json({ message: "Tenant not found" });
-        // }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 12);
 
         const tenant = await prisma.tenant.create({
             data: {
@@ -48,11 +40,11 @@ router.post("/signup", async (req, res) => {
 
         const token = jwt.sign(
             { userId: user.id, tenantId: user.tenantId },
-            JWT_SECRET,
-            { expiresIn: "7d" }
+            getJwtSecret(),
+            { expiresIn: "2d" }
         );
 
-        return res.status(201).json({ token, user });
+        return res.status(201).json({ token, user, tenant });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Error creating user", error });
@@ -82,29 +74,48 @@ router.post("/login", async (req, res) => {
             {
                 userId: user.id,
                 tenantId: user.tenantId,
-            },
-            process.env.JWT_SECRET || "dev-secret",
+            }, getJwtSecret(),
             { expiresIn: "7d" }
         );
 
-        return res.status(200).json({ message: "Login successful", token });
+        return res.status(200).json({ message: "Login successful", token, });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Error logging in", error });
     }
 });
+
+
 router.get("/me", authMiddleware, async (req, res) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: req.userId,
+            },
+            include: {
+                tenant: true,
+            },
+        });
 
-    const user = await prisma.user.findUnique({
-        where: { id: req.userId },
-        include: { tenant: true },
-    });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
-    if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(200).json({
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                tenantId: user.tenantId,
+                tenantName: user.tenant?.tenantName || "Unknown",
+            },
+        });
+    } catch (err) {
+        console.error("Error in /me:", err);
+        return res.status(500).json({ message: "Failed to fetch user" });
     }
-
 });
+
 
 
 

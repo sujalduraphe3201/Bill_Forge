@@ -10,6 +10,8 @@ const Signup = () => {
     const [username, setUsername] = useState("")
     const [response, setResponse] = useState("")
     const navigate = useNavigate();
+
+
     const handlesignup = async () => {
         try {
             const res = await axios.post("http://localhost:3000/api/v1/signup", { email, password, tenantName, username });

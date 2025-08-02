@@ -6,11 +6,12 @@ import { prisma } from './prisma/client';
 import dashRouter from './routes/dashboard';
 dotenv.config();
 
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-
+console.log("JWT_SECRET:", process.env.JWT_SECRET);
 app.get('/', async (req, res) => {
     // const users = await prisma.user.findMany({
     //     include: {
@@ -22,6 +23,11 @@ app.get('/', async (req, res) => {
 });
 
 app.use("/api/v1/", UserRoutes)
+// app.get("/", (req, res) => {
+//     res.send(
+//         "main route"
+//     )
+// })
 app.use("/api/v1/", dashRouter)
 
 

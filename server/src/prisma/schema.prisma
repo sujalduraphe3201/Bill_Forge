@@ -8,15 +8,15 @@ datasource db {
 }
 
 model Tenant {
-    id        String   @id @default(uuid())
-    tenantName      String
-    createdAt DateTime @default(now())
-    users     User[]
+    id         String   @id @default(uuid())
+    tenantName String
+    createdAt  DateTime @default(now())
+    users      User[]
 }
 
 model User {
     id        String   @id @default(uuid())
-    username      String
+    username  String
     email     String   @unique
     password  String
     createdAt DateTime @default(now())
